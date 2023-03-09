@@ -56,7 +56,7 @@
         }
 
         function clicked(bw) {
-            data_inputs.push([current_color.r, current_color.g, current_color.b]);
+            data_inputs.push([current_color.r/255, current_color.g/255, current_color.b/255]);
             data_outputs.push(bw);
             newColor();
         }
