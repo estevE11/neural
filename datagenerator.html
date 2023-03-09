@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .c {
+            background-color: gray;
+            width: 40%;
+            height: 200px;
+            display: inline-block;
+            text-align: center;
+            padding-top: 20%;
+        }
+
+        #c1 {
+            color: white;
+        }
+
+        #c2 {
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="c" id="c1" onclick="clicked(0)">Test example</div><div class="c" id="c2" onclick="clicked(1)">Test example</div>
+        <button onclick="d()">Download</button>
+    </div>
+
+    <script>
+
+        let data_inputs = [];
+        let data_outputs = [];
+        let current_color = null;
+
+        function randomColor() {
+            let color = {
+                r: Math.floor(Math.random()*255),
+                g: Math.floor(Math.random()*255),
+                b: Math.floor(Math.random()*255)
+            };
+            return color;
+        }
+
+        function colorString(c) {
+            return `rgb(${c.r},${c.g},${c.b})`;
+        }
+
+        function newColor() {
+            current_color = randomColor();
+            document.getElementById("c1").style.backgroundColor = colorString(current_color);
+            document.getElementById("c2").style.backgroundColor = colorString(current_color);
+        }
+
+        function clicked(bw) {
+            data_inputs.push([current_color.r, current_color.g, current_color.b]);
+            data_outputs.push(bw);
+            newColor();
+        }
+
+        newColor();
+
+        function d() {
+            const content = {X: data_inputs, Y: data_outputs};
+            download(content, "test.json", "text/plain");
+        }
+
+        function download(content, fileName, contentType) {
+            var a = document.createElement("a");
+            var file = new Blob([JSON.stringify(content)], {type: contentType});
+            a.href = URL.createObjectURL(file);
+            a.download = fileName;
+            a.click();
+        }
+    </script>
+</body>
+</html>
