@@ -28,6 +28,7 @@
     <div class="wrapper">
         <div class="c" id="c1" onclick="clicked(0)">Test example</div><div class="c" id="c2" onclick="clicked(1)">Test example</div>
         <button onclick="d()">Download</button>
+        Count:<span id="count">0</span>
     </div>
 
     <script>
@@ -35,6 +36,7 @@
         let data_inputs = [];
         let data_outputs = [];
         let current_color = null;
+        let count = 0;
 
         function randomColor() {
             let color = {
@@ -56,12 +58,18 @@
         }
 
         function clicked(bw) {
+            cnt();
             data_inputs.push([current_color.r/255, current_color.g/255, current_color.b/255]);
-            data_outputs.push(bw);
+            data_outputs.push(bw == 0 ? [1, 0] : [0, 1]);
             newColor();
         }
 
         newColor();
+
+        function cnt() {
+            count++;
+            document.getElementById("count").innerText = count;
+        }
 
         function d() {
             const content = {X: data_inputs, Y: data_outputs};
