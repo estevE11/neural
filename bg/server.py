@@ -3,8 +3,10 @@ import numpy as np
 from model import BG
 
 from flask import Flask, Response, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 handler = None
 
@@ -15,7 +17,8 @@ def getQuestion():
     b = int(request.args.get("b"))
     out = 1 if handler.guess(r, g, b)[0] < 0.5 else 0
     print(out)
-    response=jsonify({"data": "buenas"})
+    response = jsonify({"output": out})
+    response.headers.add('Access-Control-Allow-Origin', '*')
     
     return response
 

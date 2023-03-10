@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+
+        #show {
+            width: 400px;
+            height: 400px;
+            text-align: center;
+            padding-top: 20%;
+            border: 1px solid black;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="show">
+        <span id="text">Hola buenas tardes que tal?</span>
+    </div>
+    <input type="color" name="color" id="color" onchange="color_changed(this.value)">
+
+    <script>
+        let bgcolor;
+
+        function get_pred(r, g, b) {
+            return new Promise((success, cancel) => {
+                fetch(`http://127.0.0.1:5000?r=${r}&g=${g}&b=${b}`, {method: 'GET',headers: {'Accept': 'application/json'}})
+                .then(response => response.json())
+                .then(json => {
+                    success(json);
+                }).catch(function (err) {
+                    console.warn('Something went wrong.', err);
+                    cancel(err);
+                });
+            });
+        }
+
+        async function init() {
+        }
+
+        async function color_changed(e) {
+            let rgb = hexToRgb(e.substring(1, e.length));
+            document.getElementById("show").style.backgroundColor = e;
+            await act(rgb);
+        }
+
+        async function act(rgb) {
+            let res = await get_pred(rgb[0], rgb[1], rgb[2]);
+            if(res.output == 0) {
+                document.getElementById("text").style.color = "white";
+            } else {
+                document.getElementById("text").style.color = "black";
+            }
+        }
+
+        function hexToRgb(hex) {
+            var bigint = parseInt(hex, 16);
+            var r = (bigint >> 16) & 255;
+            var g = (bigint >> 8) & 255;
+            var b = bigint & 255;
+
+            return [r, g, b];
+        }
+
+        init();
+</script>
+</body>
+</html>
