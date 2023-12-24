@@ -1,7 +1,6 @@
 from tqdm import trange
 import numpy as np
 
-
 from dataset import fetch_mnist
 X_train, Y_train, X_test, Y_test = fetch_mnist()
 
@@ -22,10 +21,7 @@ class MnistNet(nn.Module):
     
 
 import torch
-import math
-import random
 import matplotlib.pyplot as plt
-import time
 
 if __name__ == "__main__":
     model = MnistNet()
