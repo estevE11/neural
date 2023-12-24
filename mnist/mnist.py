@@ -35,9 +35,9 @@ if __name__ == "__main__":
     loss_function = nn.CrossEntropyLoss()
     optim = torch.optim.Adam(model.parameters())
     for i in (t:=trange(400)):
-        samp = np.random.randint(0, X_test.shape[0], size=(batch_size))
-        inpt = torch.tensor(X_test[samp].reshape(-1, 28*28)).float()
-        target = torch.tensor(Y_test[samp])
+        samp = np.random.randint(0, X_train.shape[0], size=(batch_size))
+        inpt = torch.tensor(X_train[samp].reshape(-1, 28*28)).float()
+        target = torch.tensor(Y_train[samp])
         optim.zero_grad()
         guess = model(inpt)
         loss = loss_function(guess, target)
