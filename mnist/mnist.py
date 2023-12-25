@@ -1,3 +1,4 @@
+import time
 from tqdm import trange
 import numpy as np
 
