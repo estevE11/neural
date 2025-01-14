@@ -16,9 +16,9 @@
 typedef struct {
     int num_inputs;     // Number of inputs to the layer
     int num_neurons;    // Number of neurons in the layer
-    double *weights;    // 1D array storing weights (flattened matrix)
-    double *biases;     // 1D array storing biases
-    double *outputs;    // 1D array storing outputs of this layer
+    double *weights;    // 1D array storing weights (flattened matrix shape: num_inputs x num_neurons)
+    double *biases;     // 1D array storing biases (shape: 1 x num_neurons)
+    double *outputs;    // 1D array storing outputs of this layer (shape: 1 x num_neurons)
 } Layer;
 
 // Structure for the network
@@ -26,6 +26,33 @@ typedef struct {
     int num_layers;     // Number of layers
     Layer *layers;      // Array of layers
 } NeuralNetwork;
+
+void printArray(double *arr, int n) {
+    printf("[");
+    for (int i = 0; i < n-1; i++) {
+        printf("%f, ", arr[i]);
+    }
+    printf("%f]", arr[n-1]);
+    printf("\n");
+}
+
+void printMatrix(double *mat, int rows, int cols) {
+    for (int i = 0; i < rows; i++) {
+        printArray(mat + i * cols, cols);
+    }
+}
+
+void matmul(double *a, double *b, double *c, int ah, int aw, int bw) { // result matrix is: aw X bh
+    for (int i = 0; i < ah; i++) {
+        for (int j = 0; j < bw; j++) {
+            double sum = 0;
+            for (int k = 0; k < aw; k++) {
+                sum += a[i * ah + k] * b[k * bw + j];
+            }
+            c[i * bw + j] = sum;
+        }
+    }
+}
 
 double relu(double x) {
     return x > 0 ? x : 0;
@@ -61,10 +88,6 @@ void initLayer(Layer *layer, int n_conn, int n_neurons) {
     }
 }
 
-double getWeight(Layer *layer, int i_conn, int i_neuron) {
-    return layer->weights[i_neuron * layer->num_inputs + i_conn];
-}
-
 void initNN(NeuralNetwork *nn, int* layers, int n_layers) {
     nn->num_layers = n_layers-1;
     nn->layers = (Layer *)malloc(nn->num_layers * sizeof(Layer));
@@ -88,18 +111,16 @@ void free_network(NeuralNetwork *nn) {
 }
 
 void forwardLayer(Layer *layer, double *inputs, int sig) {
-    for(int i_neuron = 0; i_neuron < layer->num_neurons; i_neuron++) {
-        double sum = 0;
-        for(int i_conn = 0; i_conn < layer->num_inputs; i_conn++) {
-            sum += inputs[i_conn] * getWeight(layer, i_conn, i_neuron);
-        }
-        layer->outputs[i_neuron] = sum + layer->biases[i_neuron];
+    matmul(inputs, layer->weights, layer->outputs, 1, layer->num_inputs, layer->num_neurons);
+
+    // Biases and activation function
+    for (int i = 0; i < layer->num_neurons; i++) {
+        layer->outputs[i] += layer->biases[i];
         if(sig == 1) {
-            layer->outputs[i_neuron] = sigmoid(layer->outputs[i_neuron]);
+            layer->outputs[i] = sigmoid(layer->outputs[i]);
         } else {
-            layer->outputs[i_neuron] = relu(layer->outputs[i_neuron]);
+            layer->outputs[i] = relu(layer->outputs[i]);
         }
-        softmax(layer->outputs, layer->num_neurons);
     }
 }
 
@@ -112,6 +133,9 @@ void forward(NeuralNetwork *nn, double *inputs, double **out) {
         }
         forwardLayer(&(nn->layers[i]), nn->layers[i-1].outputs, 0);
     }
+
+    Layer *last_layer = &(nn->layers[nn->num_layers-1]);
+    softmax(last_layer->outputs, last_layer->num_neurons);
 
     int out_len = nn->layers[nn->num_layers-1].num_neurons;
     *out = (double *)malloc(out_len * sizeof(double));
@@ -132,14 +156,15 @@ int main() {
     inputs[1] = 0.1;
     inputs[2] = 0.9;
 
+    printf("Inputs: ");
+    printArray(inputs, 3);
+
     double *out;
 
     forward(&nn, inputs, &out);
 
-    for(int i = 0; i < 2; i++) {
-        printf("%f ", out[i]);
-    }
-    printf("\n");
+    printf("Outputs: ");
+    printArray(out, 2);
 
     free(out);
     free_network(&nn);
