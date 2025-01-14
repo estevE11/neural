@@ -166,6 +166,7 @@ int main() {
     printf("Outputs: ");
     printArray(out, 2);
 
+    free(inputs);
     free(out);
     free_network(&nn);
 
